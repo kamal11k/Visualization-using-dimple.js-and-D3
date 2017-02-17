@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+  <style type="text/css">
+    svg {
+      margin-left: 15%;
+    }
+    h3{
+      padding-left: 28%;
+    }
+
+  </style>
+  <script type="text/javascript">
+    function draw(data){
+      
+      //d3 setup code
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Sex");
+
+      var svg1 = dimple.newSvg("body", 600, 250);
+      var chart = new dimple.chart(svg1,data);
+
+      // Setting X-axis
+      var x = chart.addCategoryAxis("x","Sex");
+      x.title = "Sex";
+
+      // Setting Y-axis
+      var y = chart.addMeasureAxis("y", "PassengerId");
+      y.title = "Number of Passengers";
+
+      
+      var s = chart.addSeries('Survived', dimple.plot.bar);
+      s.aggregate = dimple.aggregateMethod.count;
+
+      //Adding legend
+      chart.addLegend(10, 30, 500, 30, "right");
+      chart.draw();
+
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Age group");
+
+      var svg2 = dimple.newSvg("body", 600, 250);
+      var chart = new dimple.chart(svg2,data);
+
+      var x = chart.addCategoryAxis("x","AgeBucket");
+      x.title = "Age Bucket";
+      var y = chart.addMeasureAxis("y", "PassengerId");
+      y.title = "Number of Passengers";
+      var s = chart.addSeries('Survived', dimple.plot.bar);
+      s.aggregate = dimple.aggregateMethod.count;
+
+      chart.addLegend(50, 30, 500, 30, "right");
+      chart.draw();
+    }
+  </script>
+</head>
+<body>
+<script type="text/javascript">
+  d3.csv('titanic_data.csv',function(d){
+    
+        if(d.Age != "" && d.Age < 18){
+            d.AgeBucket = "Child";
+        }else if(d.Age>=18 && d.Age<40){
+            d.AgeBucket = "Middle Aged";
+        }else d.AgeBucket = "Senior";
+
+        d.Survived = ( d.Survived == 1 ? "Survived" : "Died");
+        return d; }, draw );
+
+
+</script>
+</body>
+</html>
