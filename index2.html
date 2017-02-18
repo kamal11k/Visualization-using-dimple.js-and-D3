@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+  <style type="text/css">
+    svg {
+      margin-left: 25%;
+    }
+    h3{
+      text-align: center;
+    }
+    .button{
+      width: 70px;
+      border-radius: 8px;
+      background-color: #f1be74;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      box-shadow: 1px 1px grey;
+
+    }
+    #count {
+      position: fixed;
+      top: 55%;
+    }
+    #percent{
+      position: fixed;
+      top: 50%;
+    }
+  </style>
+  <script type="text/javascript">
+    function draw_chart(svg,data,x_value,vis_type){
+      
+      var chart = new dimple.chart(svg,data);
+
+      var x = chart.addCategoryAxis("x",x_value);
+      if(x_value=="Pclass"){
+        x.title = "Passenger Class"
+      }else
+        x.title = x_value;
+      
+      if( vis_type == "count" ) {
+        var y = chart.addMeasureAxis("y", "PassengerId");
+        y.title = "Number of Passengers";
+      }
+      else {
+        var y = chart.addPctAxis("y", "PassengerId");
+        y.title = "Percentage of Passengers";
+      }
+
+      
+      var s = chart.addSeries('Survived', dimple.plot.bar);
+      s.aggregate = dimple.aggregateMethod.count;
+
+      chart.addLegend(10, 30, 700, 30, "right");
+
+      chart.assignColor("Died", "#d71920");
+      chart.assignColor("Survived", "#57585a");
+      chart.draw(500);
+
+      }
+
+   
+
+    function draw(data){
+      d3.select('body').append('h2')
+                        .style('text-align',"center")
+                        .text("Lets see how female , child and Rich were more likely to be survived in Titanic Tragedy");
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Sex");
+      svg1 = dimple.newSvg("body",800,500);
+      chart_1 = draw_chart(svg1,data,"Sex","percentage");
+
+
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Age group");
+      svg2 = dimple.newSvg("body",800,500);
+      chart_2 = draw_chart(svg2,data,"AgeBucket","percentage");
+
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Passenger class");
+      svg3 = dimple.newSvg("body",800,500);
+      chart_3 = draw_chart(svg3,data,"Pclass","percentage");
+
+      var count_percent = ["count","percent"];
+
+      count_percent_button = d3.select('body')
+                                .selectAll("input")
+                                .data(count_percent)
+                                .enter()
+                                .append("input")
+                                .attr("type","button")
+                                .attr("class","button")
+                                .attr('id',function(d){
+                                  return d;
+                                })
+                                .attr("value",function(d){
+                                  return d;
+                                });
+          
+
+      d3.select('#count').on("click",function(){
+        svg1.selectAll('*').remove();
+        svg2.selectAll('*').remove();
+        svg3.selectAll('*').remove();
+        draw_chart(svg1,data,"Sex","count");
+        draw_chart(svg2,data,"AgeBucket","count");
+        draw_chart(svg3,data,"Pclass","count");
+      });
+
+      d3.select('#percent').on("click",function(){
+        svg1.selectAll('*').remove();
+        svg2.selectAll('*').remove();
+        svg3.selectAll('*').remove();
+        draw_chart(svg1,data,"Sex","percent");
+        draw_chart(svg2,data,"AgeBucket","percent");
+        draw_chart(svg3,data,"Pclass","percent");
+
+
+      });
+    } 
+
+  </script>
+</head>
+<body>
+<script type="text/javascript">
+  d3.csv('titanic_data.csv',function(d){
+    
+        if(d.Age != "" && d.Age < 18){
+            d.AgeBucket = "Child";
+        }else if(d.Age>=18 && d.Age<40){
+            d.AgeBucket = "Middle Aged";
+        }else d.AgeBucket = "Senior";
+
+        d.Survived = ( d.Survived == 1 ? "Survived" : "Died");
+        d.PassengerId = +d.PassengerId;
+        return d; }, draw );
+
+    
+
+
+</script>
+</body>
+</html>
