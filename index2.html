@@ -29,6 +29,12 @@
     }
   </style>
   <script type="text/javascript">
+
+    // function defined to create charts .
+    // data - data array
+    // svg - svg container
+    // x_value - categorical variable from "data" to plot on x-Axis
+    // vis_type - visualisation type -> "Count" or "Percentage"
     function draw_chart(svg,data,x_value,vis_type){
       
       var chart = new dimple.chart(svg,data);
@@ -39,6 +45,7 @@
       }else
         x.title = x_value;
       
+      //Setting y label according to vis_type
       if( vis_type == "count" ) {
         var y = chart.addMeasureAxis("y", "PassengerId");
         y.title = "Number of Passengers";
@@ -48,7 +55,7 @@
         y.title = "Percentage of Passengers";
       }
 
-      
+      // Draw stacked column bar grouped by count of survival infromation
       var s = chart.addSeries('Survived', dimple.plot.bar);
       s.aggregate = dimple.aggregateMethod.count;
 
@@ -56,18 +63,23 @@
 
       chart.assignColor("Died", "#d71920");
       chart.assignColor("Survived", "#57585a");
+      //addede value in draw() for better visualisation
       chart.draw(500);
 
       }
 
    
-
+//Received data sent from d3.csv 
     function draw(data){
+
+      //Added heading
       d3.select('body').append('h2')
                         .style('text-align',"center")
                         .text("Lets see how female , child and Rich were more likely to be survived in Titanic Tragedy");
       d3.select("body").append('h3')
                         .text("Survival rate according to Sex");
+
+      //Drwing svg elements and calling chart function with different arguments.
       svg1 = dimple.newSvg("body",800,500);
       chart_1 = draw_chart(svg1,data,"Sex","percentage");
 
@@ -83,7 +95,7 @@
       chart_3 = draw_chart(svg3,data,"Pclass","percentage");
 
       var count_percent = ["count","percent"];
-
+//Created two buttons for count and percentage.
       count_percent_button = d3.select('body')
                                 .selectAll("input")
                                 .data(count_percent)
@@ -98,7 +110,7 @@
                                   return d;
                                 });
           
-
+//Adding effects after clicking buttons.
       d3.select('#count').on("click",function(){
         svg1.selectAll('*').remove();
         svg2.selectAll('*').remove();
@@ -125,7 +137,10 @@
 <body>
 <script type="text/javascript">
   d3.csv('titanic_data.csv',function(d){
-    
+        
+  /*Grouped Passengers according to age category .craeted three age groups .
+  Change survived infromation from 0,1 to Died,Survived .
+*/
         if(d.Age != "" && d.Age < 18){
             d.AgeBucket = "Child";
         }else if(d.Age>=18 && d.Age<40){
