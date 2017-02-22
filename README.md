@@ -20,6 +20,11 @@ I added two buttons .One for counting the total numbers and one for representing
 i.e Passenger class into visualization .Changed the transition time to give a better feel of animation . Changed colors of the bars .Added
 comment lines where ever necessary .Added a headline .My final visualization can be seen [here](http://htmlpreview.github.io/?https://github.com/kamal11k/Visualization-using-dimple.js-and-D3/blob/master/index2.html)
 
+After my first submission My reviewer asked me for some changes .Accordingly I changed the color of bar as it was confusing .Changed the
+order of age group i.e 'child','middle aged' and 'Senior' .Added a different column 'Passengers' and deleted the 'PassengerId' column .
+Added additional information in title for better communication .Renamed 'Age Bucket' to 'Age Group' . And my final visualization can 
+be seen [here](http://htmlpreview.github.io/?https://github.com/kamal11k/Visualization-using-dimple.js-and-D3/blob/master/index3.html)
+
 ### Feedbacks :
 
 @georgeliu1998
