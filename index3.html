@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+  <style type="text/css">
+    svg {
+      margin-left: 22%;
+    }
+
+   .gridline{
+       display:none;
+   }
+
+    h3{
+      text-align: center;
+    }
+    .button{
+      width: 55px;
+      border-radius: 8px;
+      background-color: #f39c1f;
+      cursor: pointer;
+      transition-duration: 0.4s;
+      box-shadow: 1px 1px grey;
+
+    }
+    #count {
+      position: fixed;
+      top: 55%;
+    }
+    #percent{
+      position: fixed;
+      top: 50%;
+    }
+  </style>
+  <script type="text/javascript">
+
+    // function defined to create charts .
+    // data - data array
+    // svg - svg container
+    // x_value - categorical variable from "data" to plot on x-Axis
+    // vis_type - visualisation type -> "Count" or "Percentage"
+    function draw_chart(svg,data,x_value,vis_type){
+      
+      var chart = new dimple.chart(svg,data);
+
+      var x = chart.addCategoryAxis("x",x_value);
+      if(x_value=="Pclass"){
+        x.title = "Passenger Class"
+      }else if(x_value=="Age Group"){
+        x.addOrderRule(["Child","Middle Aged","Senior"]);
+        x.title = x_value;
+      }else
+        x.title = x_value;
+
+      
+      //Setting y label according to vis_type
+      if( vis_type == "count" ) {
+        var y = chart.addMeasureAxis("y", "Passengers");
+        y.title = "Number of Passengers";
+      }
+      else {
+        var y = chart.addPctAxis("y", "Passengers");
+        y.addOrderRule(['Died','Survived']);
+        y.title = "Percentage of Passengers";
+      }
+
+      // Draw stacked column bar grouped by count of survival infromation
+      var mySeries = chart.addSeries(['Survived'], dimple.plot.bar);
+      mySeries.addOrderRule("Survived",true);
+
+      mySeries.aggregate = dimple.aggregateMethod.count;
+
+      var myLegend = chart.addLegend(10, 30, 700, 30, "right");
+
+      //Adding bar color      
+      chart.assignColor("Died", "#57585a");
+      chart.assignColor("Survived", "#2ca25f");
+      //addede value in draw() for better visualisation
+      //chart.customClassList = { 'gridline':'gridline'};
+      chart.draw(500);
+
+      }
+
+   
+//Received data sent from d3.csv 
+    function draw(data){
+
+      //Added heading
+      d3.select('body').append('h2')
+                        .style('text-align',"center")
+                        .text("Lets see how female , child and Rich were more likely to be survived in Titanic Tragedy");
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Sex: Women were more than 3 times likelier to survive");
+
+      //Drwing svg elements and calling chart function with different arguments.
+      svg1 = dimple.newSvg("body",800,500);
+      chart_1 = draw_chart(svg1,data,"Sex","percentage");
+
+
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Age group: Children were rescued with higher priority");
+      svg2 = dimple.newSvg("body",800,500);
+      chart_2 = draw_chart(svg2,data,"Age Group","percentage");
+
+      d3.select("body").append('h3')
+                        .text("Survival rate according to Passenger class: Poor suffered the most");
+      svg3 = dimple.newSvg("body",800,500);
+      chart_3 = draw_chart(svg3,data,"Pclass","percentage");
+
+      var count_percent = ["count","percent"];
+//Created two buttons for count and percentage.
+      count_percent_button = d3.select('body')
+                                .selectAll("input")
+                                .data(count_percent)
+                                .enter()
+                                .append("input")
+                                .attr("type","button")
+                                .attr("class","button")
+                                .attr('id',function(d){
+                                  return d;
+                                })
+                                .attr("value",function(d){
+                                  return d;
+                                });
+          
+//Adding effects after clicking buttons.
+      d3.select('#count').on("click",function(){
+        svg1.selectAll('*').remove();
+        svg2.selectAll('*').remove();
+        svg3.selectAll('*').remove();
+        draw_chart(svg1,data,"Sex","count");
+        draw_chart(svg2,data,"Age Group","count");
+        draw_chart(svg3,data,"Pclass","count");
+      });
+
+      d3.select('#percent').on("click",function(){
+        svg1.selectAll('*').remove();
+        svg2.selectAll('*').remove();
+        svg3.selectAll('*').remove();
+        draw_chart(svg1,data,"Sex","percent");
+        draw_chart(svg2,data,"Age Group","percent");
+        draw_chart(svg3,data,"Pclass","percent");
+
+
+      });
+    } 
+
+  </script>
+</head>
+<body>
+<script type="text/javascript">
+  d3.csv('titanic_data.csv',function(d){
+        
+  /*Grouped Passengers according to age category .craeted three age groups .
+  Change survived infromation from 0,1 to Died,Survived .
+*/
+        if(d.Age != "" && d.Age < 18){
+            d["Age Group"] = "Child";
+        }else if(d.Age>=18 && d.Age<40){
+            d["Age Group"] = "Middle Aged";
+        }else d["Age Group"] = "Senior";
+
+        d.Survived = ( d.Survived == 0 ? "Died": "Survived" );
+        d.Passengers = +d.PassengerId;
+        delete d.PassengerId;
+        return d; }, draw );
+
+    
+
+
+</script>
+</body>
+</html>
